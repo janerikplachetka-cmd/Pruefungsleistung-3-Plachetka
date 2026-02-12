@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from .validation import validiere_person
+from .validation import validate_person
 from .models import Person
 
 

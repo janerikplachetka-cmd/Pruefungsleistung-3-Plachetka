@@ -5,10 +5,10 @@ class Person:
     """
     Repräsentiert eine Bürgerin bzw. einen Bürger als einfaches Datenobjekt.
     """
-    vorname: str
-    nachname: str
-    geburtsjahr: int
-    wohnort: str
+    firstname: str
+    lastname: str
+    birth_year: int
+    city: str
 
     def normalize_name(self, name: str) -> str:
         """

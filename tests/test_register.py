@@ -1,34 +1,49 @@
-import unittest
-from src.buergerregister.models import Person
-from src.buergerregister.register import Buergerregister
+import pytest
+from src.register import Buergerregister
+from src.models import Person
 
-class TestBuergerregister(unittest.TestCase):
-    
-    def setUp(self):
-        """Wird vor jedem Test ausgeführt."""
-        self.reg = Buergerregister()
-        self.p1 = Person("Anna", "Muster", 1990, "Berlin")
 
-    def test_add_valid_person(self):
-        """Testet das erfolgreiche Hinzufügen."""
-        success, msg = self.reg.add(self.p1)
-        self.assertTrue(success)
-        self.assertEqual(len(self.reg.list()), 1)
+def test_register_add_person_success():
+    # Arrange
+    register = Buergerregister()
+    person = Person("Max", "Mustermann", 1995, "Bremen")
 
-    def test_add_duplicate(self):
-        """Testet die Duplikat-Erkennung."""
-        self.reg.add(self.p1)
-        success, msg = self.reg.add(self.p1) # Gleiche Person nochmal
-        self.assertFalse(success)
-        self.assertIn("Duplikat", msg)
-        self.assertEqual(len(self.reg.list()), 1)
+    # Act
+    register.add(person)
 
-    def test_validation_failure(self):
-        """Testet, ob ungültige Personen abgelehnt werden."""
-        p_invalid = Person("", "Muster", 1800, "Berlin") # Kein Vorname, Jahr zu alt
-        success, msg = self.reg.add(p_invalid)
-        self.assertFalse(success)
-        self.assertIn("Validierungsfehler", msg)
+    # Assert
+    assert person in register.get_all()
 
-if __name__ == '__main__':
-    unittest.main()
+
+def test_register_add_multiple_persons():
+    # Arrange
+    register = Buergerregister()
+    person1 = Person("Max", "Mustermann", 1995, "Bremen")
+    person2 = Person("Anna", "Beispiel", 1998, "Hamburg")
+
+    # Act
+    register.add(person1)
+    register.add(person2)
+
+    # Assert
+    assert len(register.get_all()) == 2
+
+
+def test_register_add_duplicate_person_raises_error():
+    # Arrange
+    register = Buergerregister()
+    person = Person("Max", "Mustermann", 1995, "Bremen")
+    register.add(person)
+
+    # Act / Assert
+    with pytest.raises(ValueError):
+        register.add(person)
+
+
+def test_register_add_invalid_object():
+    # Arrange
+    register = Buergerregister()
+
+    # Act / Assert
+    with pytest.raises(TypeError):
+        register.add("keine Person")

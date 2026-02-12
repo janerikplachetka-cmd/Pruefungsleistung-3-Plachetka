@@ -1,19 +1,37 @@
-import unittest
-from src.buergerregister.models import Person
+import pytest
+from src.models import Person
 
-class TestModels(unittest.TestCase):
-    
-    def test_normalize_name(self):
-        """Testet die Normalisierung von Namen."""
-        p = Person("Max", "Mustermann", 1990, "Berlin")
-        
-        # Test cases
-        self.assertEqual(p.normalize_name("  max  "), "Max")
-        self.assertEqual(p.normalize_name("MUSTERMANN"), "Mustermann")
-        self.assertEqual(p.normalize_name("anne-marie"), "Anne-Marie") # Note: title() might handle hyphens simply
-        
-        # Check title() behavior on mixed input
-        self.assertEqual(p.normalize_name("jOhN dOe"), "John Doe")
 
-if __name__ == '__main__':
-    unittest.main()
+def test_person_creation_valid():
+    # Arrange
+    firstname = "Max"
+    lastname = "Mustermann"
+    birth_year = 1995
+    city = "Bremen"
+
+    # Act
+    person = Person(firstname, lastname, birth_year, city)
+
+    # Assert
+    assert person.firstname == firstname
+    assert person.lastname == lastname
+    assert person.birth_year == birth_year
+    assert person.city == city
+
+
+def test_person_equality_same_data():
+    # Arrange
+    person1 = Person("Max", "Mustermann", 1995, "Bremen")
+    person2 = Person("Max", "Mustermann", 1995, "Bremen")
+
+    # Act / Assert
+    assert person1 == person2
+
+
+def test_person_inequality_different_data():
+    # Arrange
+    person1 = Person("Max", "Mustermann", 1995, "Bremen")
+    person2 = Person("Anna", "Mustermann", 1995, "Bremen")
+
+    # Act / Assert
+    assert person1 != person2

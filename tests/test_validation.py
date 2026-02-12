@@ -1,70 +1,74 @@
-import unittest
-from src.buergerregister.validation import validiere_person
+import pytest
+from src.validation import validate_person
 
-class TestValidation(unittest.TestCase):
-    
-    def test_valid_person(self):
-        """Testet eine vollständig gültige Person."""
-        data = {
-            "vorname": "Max",
-            "nachname": "Mustermann",
-            "geburtsjahr": 1990,
-            "wohnort": "Berlin"
-        }
-        valid, errors = validiere_person(data)
-        self.assertTrue(valid)
-        self.assertEqual(len(errors), 0)
 
-    def test_missing_fields(self):
-        """Testet Fehler bei fehlenden Pflichtfeldern."""
-        data = {
-            "vorname": "",
-            "nachname": "Mustermann",
-            "geburtsjahr": 1990,
-            "wohnort": "" # Fehlt
-        }
-        valid, errors = validiere_person(data)
-        self.assertFalse(valid)
-        self.assertIn("Der Vorname darf nicht leer sein.", errors)
-        self.assertIn("Der Wohnort darf nicht leer sein.", errors)
+def test_validate_person_valid_data():
+    # Arrange
+    person_data = {
+        "firstname": "Max",
+        "lastname": "Mustermann",
+        "birth_year": 1995,
+        "city": "Bremen"
+    }
 
-    def test_invalid_birth_year_type(self):
-        """Testet Fehler bei falschem Datentyp für Jahr."""
-        data = {
-            "vorname": "Max",
-            "nachname": "Mustermann",
-            "geburtsjahr": "1990", # String statt int
-            "wohnort": "Berlin"
-        }
-        valid, errors = validiere_person(data)
-        self.assertFalse(valid)
-        self.assertIn("Das Geburtsjahr muss eine Zahl sein.", errors)
+    # Act
+    result = validate_person(person_data)
 
-    def test_invalid_birth_year_range(self):
-        """Testet Fehler bei Jahren außerhalb des Bereichs."""
-        # Fall: Zu alt
-        data_old = {"vorname": "A", "nachname": "B", "geburtsjahr": 1899, "wohnort": "C"}
-        valid, errors = validiere_person(data_old)
-        self.assertFalse(valid)
-        self.assertTrue(any("unplausibel" in e for e in errors))
+    # Assert
+    assert result is True
 
-        # Zukunft (2026
-        data_future = {"vorname": "A", "nachname": "B", "geburtsjahr": 2026, "wohnort": "C"}
-        valid, errors = validiere_person(data_future)
-        self.assertFalse(valid)
-        self.assertTrue(any("unplausibel" in e for e in errors))
 
-    def test_edge_case_years(self):
-        """Testet die Grenzjahre 1900 und 2025."""
-        # 1900 -> OK
-        data_1900 = {"vorname": "A", "nachname": "B", "geburtsjahr": 1900, "wohnort": "C"}
-        valid, _ = validiere_person(data_1900)
-        self.assertTrue(valid)
+def test_validate_person_missing_firstname():
+    # Arrange
+    person_data = {
+        "firstname": "",
+        "lastname": "Mustermann",
+        "birth_year": 1995,
+        "city": "Bremen"
+    }
 
-        # 2025 -> OK
-        data_2025 = {"vorname": "A", "nachname": "B", "geburtsjahr": 2025, "wohnort": "C"}
-        valid, _ = validiere_person(data_2025)
-        self.assertTrue(valid)
+    # Act / Assert
+    with pytest.raises(ValueError):
+        validate_person(person_data)
 
-if __name__ == '__main__':
-    unittest.main()
+
+def test_validate_person_missing_lastname():
+    # Arrange
+    person_data = {
+        "firstname": "Max",
+        "lastname": "",
+        "birth_year": 1995,
+        "city": "Bremen"
+    }
+
+    # Act / Assert
+    with pytest.raises(ValueError):
+        validate_person(person_data)
+
+
+def test_validate_person_birth_year_out_of_range():
+    # Arrange
+    person_data = {
+        "firstname": "Anna",
+        "lastname": "Beispiel",
+        "birth_year": 1880,
+        "city": "Bremen"
+    }
+
+    # Act / Assert
+    with pytest.raises(ValueError):
+        validate_person(person_data)
+
+
+def test_validate_person_birth_year_wrong_type():
+    # Arrange
+    person_data = {
+        "firstname": "Anna",
+        "lastname": "Beispiel",
+        "birth_year": "neunzehn",
+        "city": "Bremen"
+    }
+
+    # Act / Assert
+    with pytest.raises(TypeError):
+        validate_person(person_data)

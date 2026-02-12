@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Tuple
 
-def validiere_person(daten: Dict[str, Any]) -> Tuple[bool, List[str]]:
+def validate_person(daten: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
     Prüft ein Personen-Dictionary auf Pflichtfelder und Plausibilität.
 
